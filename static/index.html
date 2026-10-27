@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Benzineres més econòmiques</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 0 auto; padding: 16px; }
+    h1 { font-size: 1.4rem; }
+    .controls { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; margin-bottom: 12px; }
+    label { display: flex; flex-direction: column; font-size: 0.9rem; gap: 4px; }
+    select, button { font-size: 1rem; padding: 6px; }
+    .carburant { display: flex; gap: 16px; align-items: center; margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #8884; }
+    td.preu { text-align: right; font-weight: bold; white-space: nowrap; }
+    .info { font-size: 0.85rem; opacity: 0.8; margin-top: 8px; }
+    .error { color: #c0392b; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Benzineres més econòmiques</h1>
+
+  <div class="controls">
+    <label>Comarca
+      <select id="comarca"></select>
+    </label>
+    <label>Municipi (opcional)
+      <select id="municipi">
+        <option value="">Tota la comarca</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="carburant">
+    <label><input type="radio" name="carburant" value="diesel" checked> Diesel</label>
+    <label><input type="radio" name="carburant" value="super95"> Súper 95</label>
+  </div>
+
+  <button id="consultar">Consultar</button>
+
+  <div id="estat" class="info"></div>
+  <div id="error" class="error"></div>
+  <table id="taula" hidden>
+    <thead>
+      <tr><th>#</th><th>Rètol</th><th>Adreça</th><th>Municipi</th><th>Preu (€/l)</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const comarcaSel = document.getElementById('comarca');
+    const municipiSel = document.getElementById('municipi');
+    const estat = document.getElementById('estat');
+    const errorDiv = document.getElementById('error');
+    const taula = document.getElementById('taula');
+    const tbody = taula.querySelector('tbody');
+    let geo = {};
+
+    function omple(select, opcions) {
+      select.innerHTML = '';
+      opcions.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o;
+        opt.textContent = o;
+        select.appendChild(opt);
+      });
+    }
+
+    function actualitzaMunicipis() {
+      const llista = geo[comarcaSel.value] || [];
+      municipiSel.innerHTML = '<option value="">Tota la comarca</option>';
+      llista.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m;
+        municipiSel.appendChild(opt);
+      });
+    }
+
+    async function carregaGeo() {
+      const r = await fetch('/api/geo');
+      const data = await r.json();
+      geo = data.comarques;
+      omple(comarcaSel, Object.keys(geo).sort());
+      actualitzaMunicipis();
+    }
+
+    async function consulta() {
+      errorDiv.textContent = '';
+      estat.textContent = 'Consultant...';
+      const carburant = document.querySelector('input[name="carburant"]:checked').value;
+      const params = new URLSearchParams({
+        comarca: comarcaSel.value,
+        municipi: municipiSel.value,
+        carburant: carburant,
+      });
+
+      try {
+        const r = await fetch('/api/ranking?' + params.toString());
+        const data = await r.json();
+        if (!r.ok) {
+          throw new Error(data.error || 'Error desconegut');
+        }
+        pinta(data);
+      } catch (e) {
+        taula.hidden = true;
+        estat.textContent = '';
+        errorDiv.textContent = e.message;
+      }
+    }
+
+    function pinta(data) {
+      tbody.innerHTML = '';
+      data.resultat.forEach((g, i) => {
+        const tr = document.createElement('tr');
+        [i + 1, g.rotulo, g.adreca, g.municipi].forEach(v => {
+          const td = document.createElement('td');
+          td.textContent = v;
+          tr.appendChild(td);
+        });
+        const td = document.createElement('td');
+        td.className = 'preu';
+        td.textContent = g.preu.toFixed(3);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      });
+      taula.hidden = data.resultat.length === 0;
+      estat.textContent = data.resultat.length
+        ? `${data.total} estacions. Dades actualitzades: ${data.actualitzat}`
+        : 'No s\'han trobat estacions amb preu per a aquesta selecció.';
+    }
+
+    comarcaSel.addEventListener('change', actualitzaMunicipis);
+    document.getElementById('consultar').addEventListener('click', consulta);
+    carregaGeo();
+  </script>
+</body>
+</html>

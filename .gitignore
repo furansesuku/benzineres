@@ -1,0 +1,6 @@
+﻿.venv/
+__pycache__/
+*.pyc
+.env
+mostra.json
+taula_idescat.csv
