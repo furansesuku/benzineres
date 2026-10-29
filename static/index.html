@@ -13,11 +13,11 @@
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       background: #fff3d6;
       color: #1d2733;
-      padding: 16px 12px 24px;
+      padding: 12px 8px 20px;
     }
 
     .contenidor {
-      max-width: 420px;
+      max-width: 100%;
       margin: 0 auto;
     }
 
@@ -43,7 +43,7 @@
       background: #fffdf7;
       border-radius: 18px;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-      padding: 20px;
+      padding: 14px;
       margin-bottom: 16px;
     }
 
@@ -137,24 +137,31 @@
       margin: 0 0 10px;
     }
 
+    .taula-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
     }
 
     th {
       text-align: left;
       font-size: 0.8rem;
       color: #6b6b6b;
-      padding: 6px 4px;
+      padding: 6px 3px;
       border-bottom: 2px solid #e3dccb;
     }
 
     td {
-      padding: 8px 4px;
+      padding: 6px 3px;
       border-bottom: 1px solid #ece6d6;
       vertical-align: top;
+      word-break: break-word;
     }
 
     td.preu, th.preu { text-align: right; }
@@ -189,6 +196,33 @@
       font-size: 0.75rem;
       color: #8a8270;
       margin-top: 16px;
+    }
+
+    /* Ordinador i tauletes (a partir de 700 px) */
+    @media (min-width: 700px) {
+      body {
+        padding: 16px 12px 24px;
+      }
+
+      .contenidor {
+        max-width: 960px;
+      }
+
+      .targeta {
+        padding: 20px;
+      }
+
+      table {
+        font-size: 0.95rem;
+      }
+
+      th, td {
+        padding: 8px 6px;
+      }
+
+      td {
+        word-break: normal;
+      }
     }
   </style>
 </head>
@@ -225,18 +259,20 @@
 
     <section id="taula" class="targeta" hidden>
       <h2 class="classificacio-titol">Classificació</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Rètol</th>
-            <th>Adreça</th>
-            <th>Municipi</th>
-            <th class="preu">€/l</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <div class="taula-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Rètol</th>
+              <th>Adreça</th>
+              <th>Municipi</th>
+              <th class="preu">€/l</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </section>
 
     <section class="targeta apadrina">
