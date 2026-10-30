@@ -30,7 +30,7 @@ API_URL = os.getenv(
 )
 REFRESH_SECONDS = int(os.getenv("REFRESH_SECONDS", "900"))  # 15 minuts
 HOST = os.getenv("HOST", "127.0.0.1")
-PORT = int(os.getenv("PORT", "8022"))
+PORT = int(os.getenv("PORT", "8203"))
 
 # Noms dels camps verificats amb una resposta real de l'API
 CLAU_LLISTA = "ListaEESSPrecio"
